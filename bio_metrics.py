@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """bio_metrics.py: thư viện đo hiệu năng do sinh viên tự viết trong TH01.
 
 Tệp này được dùng lại ở TH03, TH04, TH05, TH06, TH07, TH09 và TH10, vì vậy các bạn nên
@@ -196,11 +196,42 @@ def _probit(p, lo=1e-5):
     Vì sao cần trục này: nếu điểm cùng người và khác người đều gần phân phối chuẩn,
     đường DET gần như thẳng, nên hai hệ thống so sánh với nhau rất rõ ở vùng lỗi nhỏ.
     """
-    # TODO 7: cài đặt hàm này.
-    if norm is None:
-        raise ImportError("Cần cài đặt scipy để dùng norm.ppf cho _probit.")
     p_clipped = np.clip(p, lo, 1.0 - lo)
-    return norm.ppf(p_clipped)
+    if norm is not None:
+        return norm.ppf(p_clipped)
+    # Thuật toán xấp xỉ hữu tỉ Acklam cho hàm phân vị chuẩn nghịch đảo khi không có scipy
+    a = [-3.969683028665376e+01,  2.209460984245205e+02,
+         -2.759285104469687e+02,  1.383577518672690e+02,
+         -3.066479806614716e+01,  2.506628277459239e+00]
+    b = [-5.447609879822406e+01,  1.615858368580409e+02,
+         -1.556989798598866e+02,  6.680131188771972e+01,
+         -1.328068155288572e+01]
+    c = [-7.784894002430293e-03, -3.223964580411365e-01,
+         -2.400758277161838e+00, -2.549732539343734e+00,
+          4.374664141464968e+00,  2.938163982698783e+00]
+    d = [ 7.784695709041462e-03,  3.224671290700398e-01,
+          2.445134137142996e+00,  3.754408661907416e+00]
+    arr = np.asarray(p_clipped, dtype=np.float64)
+    res = np.zeros_like(arr)
+    p_low = 0.02425
+    p_high = 1.0 - p_low
+    mask_low = arr < p_low
+    if np.any(mask_low):
+        q = np.sqrt(-2.0 * np.log(arr[mask_low]))
+        res[mask_low] = (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / \
+                        ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1.0)
+    mask_mid = (arr >= p_low) & (arr <= p_high)
+    if np.any(mask_mid):
+        q = arr[mask_mid] - 0.5
+        r = q * q
+        res[mask_mid] = (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / \
+                        (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1.0)
+    mask_high = arr > p_high
+    if np.any(mask_high):
+        q = np.sqrt(-2.0 * np.log(1.0 - arr[mask_high]))
+        res[mask_high] = -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / \
+                          ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1.0)
+    return res.item() if arr.ndim == 0 else res
 
 
 def plot_det(curves, path, title="Đường cong DET", eer_points=None):
