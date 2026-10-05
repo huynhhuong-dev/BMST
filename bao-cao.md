@@ -1,4 +1,4 @@
-﻿# Báo cáo thực hành LAB_2: Tự tính các chỉ số đánh giá hiệu năng: FMR, FNMR, EER, DET
+# Báo cáo thực hành LAB_2: Tự tính các chỉ số đánh giá hiệu năng: FMR, FNMR, EER, DET
 
 Học phần 04211 Bảo mật sinh trắc, lớp 2610421101, học kỳ 1 năm học 2026-2027.
 
@@ -231,4 +231,4 @@ Công cụ AI: Đã khai báo trong `AI-SUDUNG.md`.
 
 Tôi cam kết các kết quả trong báo cáo này do chính tôi chạy trên máy của mình, các phần sử dụng lại của người khác đã được ghi nguồn đầy đủ.
 
-Nguyễn Đoàn Huỳnh Hương, ngày 30/09/2026
+Nguyễn Đoàn Huỳnh Hương, ngày 30/09/2026 (cập nhật hoàn thiện 05/10/2026)
